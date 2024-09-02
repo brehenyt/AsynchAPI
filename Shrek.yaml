@@ -1,0 +1,74 @@
+asyncapi: 3.0.0
+info:
+  title: Shrek App
+  version: 1.0.0
+  description: >
+    Purpose of this app is to have some fun with AsyncAPI and WebSocket and
+    define an interface for ... Shrek.
+    ![](https://media.giphy.com/media/10Ug6rDDuG3YoU/giphy-downsized.gif) You
+    can use this API to chat with Shrek bot or to get updates about artifical
+    travels to different locations.
+servers:
+  swamp:
+    host: localhost
+    protocol: ws
+channels:
+  /chat:
+    address: /chat
+    messages:
+      pubChatMessage.message:
+        $ref: '#/components/messages/chatMessage'
+      subChatMessage.message:
+        $ref: '#/components/messages/chatMessage'
+  /travel/status:
+    address: /travel/status
+    messages:
+      subTravelInfo.message:
+        $ref: '#/components/messages/travelInfo'
+operations:
+  pubChatMessage:
+    action: receive
+    channel:
+      $ref: '#/channels/~1chat'
+    summary: Client can send chat messages.
+    messages:
+      - $ref: '#/channels/~1chat/messages/pubChatMessage.message'
+  subChatMessage:
+    action: send
+    channel:
+      $ref: '#/channels/~1chat'
+    summary: Client can receive chat messages.
+    messages:
+      - $ref: '#/channels/~1chat/messages/subChatMessage.message'
+  subTravelInfo:
+    action: send
+    channel:
+      $ref: '#/channels/~1travel~1status'
+    summary: Client can receive travel info status.
+    messages:
+      - $ref: '#/channels/~1travel~1status/messages/subTravelInfo.message'
+components:
+  messages:
+    chatMessage:
+      summary: Message that you send or receive from chat
+      payload:
+        type: string
+    travelInfo:
+      summary: Message that contains information about travel status.
+      examples:
+        - payload:
+            destination: Far far away
+            distance: Beyond the seven mountains and seven forests
+            arrival: Pretty soon
+      payload:
+        type: object
+        properties:
+          destination:
+            description: Name of travel destination.
+            type: string
+          distance:
+            description: How much distance left to the target.
+            type: string
+          arrival:
+            description: Time left to get there.
+            type: string
